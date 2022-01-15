@@ -8,8 +8,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"os/exec"
-	"runtime"
 	"strings"
 	"time"
 )
@@ -142,14 +140,6 @@ func pollAccessToken(deviceCode string, interval time.Duration, expiresAt time.T
 	}
 }
 
-func openBrowser(url string) error {
-	if runtime.GOOS != "darwin" {
-		return errors.New("unsupported os")
-	}
-	cmd := exec.Command("open", url)
-	return cmd.Start()
-}
-
 func run(args []string) error {
 	// https://docs.github.com/ja/developers/apps/building-oauth-apps/authorizing-oauth-apps#device-flow
 
@@ -161,9 +151,8 @@ func run(args []string) error {
 	}
 
 	// Step 2: Prompt the user to enter the user code in a browser
-	fmt.Println("Enter this code:", dcResp.UserCode)
-	fmt.Println(dcResp.VerificationURI)
-	err = openBrowser(dcResp.VerificationURI)
+	fmt.Printf("Open %s in your browser and enter this code:\n", dcResp.VerificationURI)
+	fmt.Println(dcResp.UserCode)
 	if err != nil {
 		return err
 	}
